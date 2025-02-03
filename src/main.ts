@@ -23,13 +23,23 @@ async function bootstrap() {
     .setDescription("API description")
     .setVersion("1.0")
     .addTag("api")
+    .addBearerAuth(
+      {
+        type: "http",
+        scheme: "bearer",
+        bearerFormat: "JWT",
+      },
+      "access-token",
+    )
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup("api", app, document);
 
   const configService = app.get(ConfigService);
   const port = configService.get<string>("PORT", "3000");
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }),
+  );
   await app.listen(port, "0.0.0.0");
 }
 
